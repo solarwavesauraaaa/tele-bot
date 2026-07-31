@@ -11,7 +11,7 @@ const PORT = process.env.PORT || 5000;
 app.use(express.static(path.join(__dirname, "public")));
 app.use(express.json());
 
-// Return the current live question (without exposing the correct answer)
+// Return current live question (without exposing correct answer to front-end)
 app.get("/api/current-question", (req, res) => {
   const db = loadHistory();
   if (!db.current) return res.json({ question: null });
@@ -20,7 +20,7 @@ app.get("/api/current-question", (req, res) => {
   res.json(safe);
 });
 
-// Check an answer server-side so the correct option isn't sitting in client JS
+// Validate answer server-side
 app.post("/api/check-answer", (req, res) => {
   const { id, answer } = req.body;
   const db = loadHistory();
@@ -40,14 +40,13 @@ app.post("/api/check-answer", (req, res) => {
 app.listen(PORT, "0.0.0.0", async () => {
   console.log(`MCQ server running at http://0.0.0.0:${PORT}`);
 
-  // Generate an initial question immediately on startup if none exists
   const db = loadHistory();
   if (!db.current) {
     console.log("No question found, generating first MCQ...");
     await generateOne();
   }
 
-  // Every 10 minutes: generate a fresh MCQ
+  // Cron schedule: triggers every 10 minutes
   cron.schedule("*/10 * * * *", async () => {
     console.log("Cron triggered: generating new MCQ...");
     await generateOne();
