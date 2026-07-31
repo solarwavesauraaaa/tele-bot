@@ -6,7 +6,7 @@ const { sendMCQToTelegram } = require("./telegram");
 const OLLAMA_URL = "http://localhost:11434/api/generate";
 const MODEL = process.env.OLLAMA_MODEL || "qwen2.5:7b";
 const DB_FILE = path.join(__dirname, "questions.json");
-const HISTORY_LIMIT = 50; // avoid repeats, keep memory small
+const HISTORY_LIMIT = 50;
 
 const TOPICS = [
   "Object Oriented Programming",
@@ -68,7 +68,6 @@ Make sure exactly one option is correct, options are plausible and not trivially
 }
 
 function extractJSON(text) {
-  // Strip markdown fences if model adds them anyway, then find the first {...} block
   const cleaned = text.replace(/```json|```/g, "").trim();
   const start = cleaned.indexOf("{");
   const end = cleaned.lastIndexOf("}");
@@ -121,7 +120,6 @@ async function generateOne(retries = 3) {
 
       console.log(`[${new Date().toISOString()}] New MCQ generated (topic: ${topic}):`, mcq.question);
 
-      // Fire-and-forget: don't let a Telegram outage block MCQ generation
       sendMCQToTelegram(mcq).catch((err) =>
         console.error("[generateMCQ] Telegram send threw:", err.message)
       );
