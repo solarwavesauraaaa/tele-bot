@@ -1,17 +1,15 @@
 const fetch = require("node-fetch");
 
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-const CHAT_ID = process.env.TELEGRAM_CHAT_ID; // e.g. "@your_channel" or "-1001234567890"
+const CHAT_ID = process.env.TELEGRAM_CHAT_ID;
 
 function isConfigured() {
   return Boolean(BOT_TOKEN && CHAT_ID);
 }
 
-// Telegram poll fields have their own (shorter) length limits than regular
-// messages, so keep things within bounds instead of failing silently.
-const MAX_QUESTION_LEN = 300; // Telegram limit for poll "question"
-const MAX_OPTION_LEN = 100; // Telegram limit per poll option
-const MAX_EXPLANATION_LEN = 200; // Telegram limit for quiz "explanation"
+const MAX_QUESTION_LEN = 300;
+const MAX_OPTION_LEN = 100;
+const MAX_EXPLANATION_LEN = 200;
 
 function truncate(text = "", max) {
   const str = String(text);
@@ -27,11 +25,8 @@ async function sendMCQToTelegram(mcq) {
   }
 
   const letters = ["a", "b", "c", "d"];
-  const correctOptionId = letters.indexOf(mcq.correct); // 0-3, required by sendPoll
+  const correctOptionId = letters.indexOf(mcq.correct);
 
-  // A native Telegram quiz poll: members tap an option, Telegram reveals the
-  // correct answer + percentages itself (like the "Anonymous Quiz" example) —
-  // nothing gives the answer away up front.
   const topicPrefix = mcq.topic ? `[${mcq.topic}] ` : "";
   const body = {
     chat_id: CHAT_ID,
